@@ -1,8 +1,25 @@
 #pragma once
+#include "Node.h"
+#include <vector>
+using namespace std;
+
 class Layer
 {
 public:
-        Layer();
-        ~Layer();
+        Layer(int node_size,Node::NodeType n_type);
+        virtual ~Layer();
+        Layer * GetPreLayer();
+        Layer * GetNextLayer();
+        void SetNextLayer(Layer * l);
+        void SetPreLayer(Layer * l);
+        int GetNodeSize();
+        Node * GetNode(int index);
+        float * GetLayerVector();
+        void Cac(float * datas);
+protected:
+        void init(int node_size, Node::NodeType n_type);
+        Layer * m_pre_layer;
+        Layer * m_next_layer;
+        vector<Node*> m_nodes;
 };
 
