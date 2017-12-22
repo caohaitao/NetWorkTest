@@ -3,7 +3,7 @@
 #include "NetWorkMath.h"
 #include <vcruntime_string.h>
 
-#define speed 1
+#define speed 0.1
 
 Node::Node(int input_size)
         :m_input_size(input_size)
