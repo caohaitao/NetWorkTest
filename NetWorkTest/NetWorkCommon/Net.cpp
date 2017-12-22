@@ -49,7 +49,16 @@ void Net::bp_one()
         for (int i = 0; i < m_real_data_size;i++) {
                 last_layer->GetNode(i)->SetDelta(m_real_datas[i]);
         }
+        Layer * now_layer = last_layer;
+        Layer * pre_layer = now_layer->GetPreLayer();
+        while (pre_layer){
+                float * temp_delts = new float[pre_layer->GetNodeSize()];
+                memset(temp_delts, 0, sizeof(float)*pre_layer->GetNodeSize());
+                for (int i = 0; i < now_layer->GetNodeSize();i++) {
+                        Node * n = now_layer->GetNode(i);
 
+                }
+        }
 }
 
 Layer * Net::GetLastLayer()
