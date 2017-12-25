@@ -2,16 +2,21 @@
 #include "Net.h"
 
 
-Net::Net()
+Net::Net(vector<NetLayerData> & layer_datas)
         :m_layer(NULL)
-        , m_real_datas(NULL)
-        ,m_real_data_size(NULL)
+        ,m_real_datas(NULL)
+        ,m_real_data_size(0)
 {
+        m_layer_construction = layer_datas;
+        initLayer();
 }
 
 
 Net::~Net()
 {
+        if (m_layer){
+                delete m_layer;
+        }
 }
 
 void Net::SetInputData(float * datas, int data_size)
@@ -26,6 +31,7 @@ void Net::SetInputData(float * datas, int data_size)
 
 void Net::SetRealData(float * real_datas, int data_size)
 {
+        m_real_data_size = data_size;
         m_real_datas = new float[data_size];
         for (int i = 0; i < data_size;i++) {
                 m_real_datas[i] = real_datas[i];
@@ -40,6 +46,8 @@ void Net::cac_one()
                 float * ds = now_layer->GetLayerVector();
                 next_layer->Cac(ds);
                 delete[] ds;
+                now_layer = next_layer;
+                next_layer = next_layer->GetNextLayer();
         }
 }
 
@@ -47,7 +55,8 @@ void Net::bp_one()
 {
         Layer * last_layer = GetLastLayer();
         for (int i = 0; i < m_real_data_size;i++) {
-                last_layer->GetNode(i)->SetDelta(m_real_datas[i]);
+                double delt = m_real_datas[i] - last_layer->GetNode(i)->GetNodeData();
+                last_layer->GetNode(i)->SetDelta(delt);
         }
         Layer * now_layer = last_layer;
         Layer * pre_layer = now_layer->GetPreLayer();
@@ -56,8 +65,27 @@ void Net::bp_one()
                 memset(temp_delts, 0, sizeof(float)*pre_layer->GetNodeSize());
                 for (int i = 0; i < now_layer->GetNodeSize();i++) {
                         Node * n = now_layer->GetNode(i);
-
+                        for (int j = 0; j < pre_layer->GetNodeSize();j++) {
+                                Node * pre_n = pre_layer->GetNode(j);
+                                temp_delts[j] += (n->GetParam(i)*n->GetDelta())*pre_n->GetNodeData()*(1 - pre_n->GetNodeData());
+                        }
                 }
+                float * inputs = new float[pre_layer->GetNodeSize()];
+                for (int i = 0; i < pre_layer->GetNodeSize();i++) {
+                        inputs[i] = pre_layer->GetNode(i)->GetNodeData();
+                }
+                for (int i = 0; i < now_layer->GetNodeSize(); i++) {
+                        Node * n = now_layer->GetNode(i);
+                        n->bp(n->GetDelta());
+                        n->AutoChangeParam(inputs);
+                }
+                for (int i = 0; i < pre_layer->GetNodeSize();i++) {
+                        pre_layer->GetNode(i)->SetDelta(temp_delts[i]);
+                }
+                now_layer = pre_layer;
+                pre_layer = pre_layer->GetPreLayer();
+                delete[] inputs;
+                delete[] temp_delts;
         }
 }
 
@@ -72,12 +100,17 @@ Layer * Net::GetLastLayer()
 
 void Net::initLayer()
 {
-        m_layer = new Layer(2, Node::SIGMOD_NODE);
-        Layer * layer2 = new Layer(2, Node::SIGMOD_NODE);
-        m_layer->SetNextLayer(layer2);
-        layer2->SetPreLayer(m_layer);
+        if (m_layer_construction.size()<2){
+                return;
+        }
 
-        Layer * layer3 = new Layer(1, Node::NORMAL_NODE);
-        layer2->SetNextLayer(layer3);
-        layer3->SetPreLayer(layer2);
+        m_layer = new Layer(m_layer_construction[0].node_size, 0,Node::SIGMOD_NODE);
+
+        Layer * pre_layer = m_layer;
+        for (int i = 1; i < m_layer_construction.size();i++) {
+                Layer * temp_layer = new Layer(m_layer_construction[i].node_size, pre_layer->GetNodeSize(),m_layer_construction[i].layer_type);
+                pre_layer->SetNextLayer(temp_layer);
+                temp_layer->SetPreLayer(pre_layer);
+                pre_layer = temp_layer;
+        }
 }

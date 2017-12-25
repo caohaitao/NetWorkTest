@@ -56,6 +56,11 @@ void Node::SetDelta(float f)
         m_delta = f;
 }
 
+float Node::GetDelta()
+{
+        return m_delta;
+}
+
 void Node::init()
 {
         m_params = new float[m_input_size];
