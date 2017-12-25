@@ -29,8 +29,8 @@ TEST(test_SIGMOD_node, sigmode_node_bp_test)
         //test y=sigmode(2*x+3)
         vector<pair<float, float>> datas;
         datas.push_back(pair<float, float>(-1.5, 0.5));
-        //datas.push_back(pair<float, float>(-1, 0.731));
-        //datas.push_back(pair<float, float>(-0.5, 0.88));
+		datas.push_back(pair<float, float>(-1, 0.731));
+		datas.push_back(pair<float, float>(-0.5, 0.88));
         datas.push_back(pair<float, float>(0, 0.952));
         datas.push_back(pair<float, float>(0.3, 0.973));
         datas.push_back(pair<float, float>(0.5, 0.982));
@@ -44,7 +44,7 @@ TEST(test_SIGMOD_node, sigmode_node_bp_test)
                 d2s[i][1] = 1.0;
         }
 
-        for (int k = 0; k < 10000;k++) {
+        for (int k = 0; k < 100000;k++) {
                 for (int i = 0; i < datas.size(); i++) {
                         float cac_y = n->cac((float*)d2s[i]);
                         double delt = datas[i].second - cac_y;
