@@ -12,9 +12,8 @@ public:
         
         virtual ~Node();
         virtual float cac(float * datas);
-        virtual float bp(float delta);
+        virtual void bp(float delta, float * datas);
         float GetParam(int index);
-        virtual void AutoChangeParam(float * datas);
         void SetNodeData(float d);
         float GetNodeData();
         void SetDelta(float f);
@@ -38,9 +37,7 @@ public:
 
         virtual float cac(float * datas) override;
 
-        virtual float bp(float delta) override;
-
-        virtual void AutoChangeParam(float * datas) override;
+        virtual void bp(float delta, float * datas) override;
 
 protected:
         SigmodeNode(int input_size);
@@ -54,9 +51,7 @@ public:
 
         virtual float cac(float * datas) override;
 
-        virtual float bp(float delta) override;
-
-        virtual void AutoChangeParam(float * datas) override;
+        virtual void bp(float delta, float * datas) override;
 protected:
         NormalNode(int input_size);
         friend NodeProducer;

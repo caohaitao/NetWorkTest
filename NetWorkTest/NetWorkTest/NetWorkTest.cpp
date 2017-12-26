@@ -7,6 +7,7 @@
 #include <vector>
 #include "Node.h"
 #include "Net.h"
+#include "TRander.h"
 using namespace std;
 
 void TestSigMod()
@@ -48,8 +49,7 @@ TEST(test_SIGMOD_node, sigmode_node_bp_test)
                 for (int i = 0; i < datas.size(); i++) {
                         float cac_y = n->cac((float*)d2s[i]);
                         double delt = datas[i].second - cac_y;
-                        n->bp(delt);
-                        n->AutoChangeParam((float*)d2s[i]);
+                        n->bp(delt, d2s[i]);
                 }
         }
         EXPECT_TRUE(NetWorkMath::IsTwoFloatNear(n->GetParam(0), 2));
@@ -80,8 +80,7 @@ TEST(test_NORMAL_node, normal_node_bp_test1)
                 for (int i = 0; i < datas.size(); i++) {
                         float cac_y = n->cac((float*)d2s[i]);
                         double delt = datas[i].second - cac_y;
-                        n->bp(delt);
-                        n->AutoChangeParam((float*)d2s[i]);
+                        n->bp(delt, d2s[i]);
                 }
         }
         EXPECT_TRUE(NetWorkMath::IsTwoFloatNear(n->GetParam(0), 2));
@@ -111,8 +110,7 @@ TEST(test_NORMAL_node, normal_node_bp_test2)
                 for (int i = 0; i < 8; i++) {
                         float cac_y = n->cac(d3s[i]);
                         float delt = result[i] - cac_y;
-                        n->bp(delt);
-                        n->AutoChangeParam(d3s[i]);
+                        n->bp(delt, d3s[i]);
                 }
         }
 
@@ -141,13 +139,15 @@ TEST(test_net, test_net_two_level)
 
         vector<Net::NetLayerData>  layer_datas;
         Net::NetLayerData nd1;
-        nd1.layer_type = Node::SIGMOD_NODE;
+        nd1.node_type = Node::SIGMOD_NODE;
         nd1.node_size = 2;
+        nd1.layer_type = Layer::NORMAL;
         layer_datas.push_back(nd1);
 
         Net::NetLayerData nd2;
-        nd2.layer_type = Node::NORMAL_NODE;
+        nd2.node_type = Node::NORMAL_NODE;
         nd2.node_size = 1;
+        nd2.layer_type = Layer::NORMAL;
         layer_datas.push_back(nd2);
         Net * net = new Net(layer_datas);
         for (int k = 0; k < 1000;k++) {
@@ -199,8 +199,7 @@ TEST(test_logistic, test_logistic)
                 for (int i = 0; i < 4; i++) {
                         float cac_y = n->cac((float*)d3s[i]);
                         double delt = results[i] - cac_y;
-                        n->bp(delt);
-                        n->AutoChangeParam((float*)d3s[i]);
+                        n->bp(delt, d3s[i]);
                 }
         }
 
@@ -233,20 +232,22 @@ TEST(test_net, section1)
         d3s[3][2] = 1;
 
         float * rs = new float[4];
-        rs[0] = 0;
+        rs[0] = 1;
         rs[1] = 0;
-        rs[2] = 1;
+        rs[2] = 0;
         rs[3] = 1;
 
         vector<Net::NetLayerData>  layer_datas;
         Net::NetLayerData nd1;
-        nd1.layer_type = Node::SIGMOD_NODE;
+        nd1.node_type = Node::SIGMOD_NODE;
         nd1.node_size = 3;
+        nd1.layer_type = Layer::NORMAL;
         layer_datas.push_back(nd1);
 
         Net::NetLayerData nd2;
-        nd2.layer_type = Node::SIGMOD_NODE;
+        nd2.node_type = Node::SIGMOD_NODE;
         nd2.node_size = 1;
+        nd2.layer_type = Layer::NORMAL;
         layer_datas.push_back(nd2);
 
 
@@ -287,53 +288,52 @@ TEST(test_net, section1)
 }
 TEST(test_net, section2)
 {
-        typedef float d3[3];
-        d3 * d3s = new d3[4];
-        d3s[0][0] = 0;
-        d3s[0][1] = 0;
-        d3s[0][2] = 1;
+        typedef float d2[3];
+        d2 * d2s = new d2[4];
+        d2s[0][0] = 0;
+        d2s[0][1] = 0;
 
-        d3s[1][0] = 0;
-        d3s[1][1] = 1;
-        d3s[1][2] = 1;
+        d2s[1][0] = 0;
+        d2s[1][1] = 1;
 
-        d3s[2][0] = 1;
-        d3s[2][1] = 0;
-        d3s[2][2] = 1;
+        d2s[2][0] = 1;
+        d2s[2][1] = 0;
 
-        d3s[3][0] = 1;
-        d3s[3][1] = 1;
-        d3s[3][2] = 1;
+        d2s[3][0] = 1;
+        d2s[3][1] = 1;
 
         float * rs = new float[4];
-        rs[0] = 0;
-        rs[1] = 1;
-        rs[2] = 1;
-        rs[3] = 0;
+        rs[0] = 1;
+        rs[1] = 0;
+        rs[2] = 0;
+        rs[3] = 1;
 
         int input_size = 2;
 
         vector<Net::NetLayerData>  layer_datas;
         Net::NetLayerData nd1;
-        nd1.layer_type = Node::SIGMOD_NODE;
+        nd1.node_type = Node::SIGMOD_NODE;
         nd1.node_size = input_size;
+        nd1.layer_type = Layer::BIAS;
         layer_datas.push_back(nd1);
 
         Net::NetLayerData nd2;
-        nd2.layer_type = Node::SIGMOD_NODE;
+        nd2.node_type = Node::SIGMOD_NODE;
         nd2.node_size = 2;
+        nd2.layer_type = Layer::BIAS;
         layer_datas.push_back(nd2);
 
         Net::NetLayerData nd3;
-        nd3.layer_type = Node::SIGMOD_NODE;
+        nd3.node_type = Node::SIGMOD_NODE;
         nd3.node_size = 1;
+        nd3.layer_type = Layer::NORMAL;
         layer_datas.push_back(nd3);
 
 
         Net * net = new Net(layer_datas);
         for (int k = 0; k < 10000; k++) {
                 for (int i = 0; i < 4; i++) {
-                        net->SetInputData(d3s[i], input_size);
+                        net->SetInputData(d2s[i], input_size);
                         net->SetRealData(&rs[i], 1);
                         net->cac_one();
                         net->bp_one();
@@ -342,28 +342,34 @@ TEST(test_net, section2)
 
         Layer * last_layer = net->GetLastLayer();
 
-        net->SetInputData(d3s[0], input_size);
+        net->SetInputData(d2s[0], input_size);
         net->cac_one();
 
         float d = last_layer->GetNode(0)->GetNodeData();
 
-        net->SetInputData(d3s[1], input_size);
+        net->SetInputData(d2s[1], input_size);
         net->cac_one();
 
         d = last_layer->GetNode(0)->GetNodeData();
 
-        net->SetInputData(d3s[2], input_size);
+        net->SetInputData(d2s[2], input_size);
         net->cac_one();
 
         d = last_layer->GetNode(0)->GetNodeData();
 
-        net->SetInputData(d3s[3], input_size);
+        net->SetInputData(d2s[3], input_size);
         net->cac_one();
 
         d = last_layer->GetNode(0)->GetNodeData();
 
         delete net;
-        delete[]d3s;
+        delete[]d2s;
+}
+TEST(test_rander, tr)
+{
+        int a = TRander::GetControl()->GetARandNumber(0, 10);
+        int b = TRander::GetControl()->GetARandNumber(0, 10);
+        EXPECT_TRUE(a != b);
 }
 int main(int argc,char ** argv)
 {

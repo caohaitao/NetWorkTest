@@ -7,8 +7,9 @@ class Net
 public:
         struct NetLayerData
         {
-                Node::NodeType layer_type;
+                Node::NodeType node_type;
                 int node_size;
+                Layer::LayerType layer_type;
         };
         Net(vector<NetLayerData> & layer_datas);
         ~Net();

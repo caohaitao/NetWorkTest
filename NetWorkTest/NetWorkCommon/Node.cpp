@@ -2,6 +2,7 @@
 #include "Node.h"
 #include "NetWorkMath.h"
 #include <vcruntime_string.h>
+#include "TRander.h"
 
 #define speed 0.1
 
@@ -26,20 +27,19 @@ float Node::cac(float * datas)
         return -1;
 }
 
-float Node::bp(float delta)
+void Node::bp(float delta, float * datas)
 {
-        return -1;
+        
 }
 
 float Node::GetParam(int index)
 {
+        if (index>(m_input_size-1)){
+                return 0.0;
+        }
         return m_params[index];
 }
 
-void Node::AutoChangeParam(float * datas)
-{
-
-}
 
 void Node::SetNodeData(float d)
 {
@@ -64,10 +64,10 @@ float Node::GetDelta()
 void Node::init()
 {
         m_params = new float[m_input_size];
-        memset(m_params, 0, sizeof(float)*m_input_size);
-        //for (int i = 0; i < m_input_size;i++) {
-        //        m_params[i] = 1.0;
-        //}
+        //memset(m_params, 0, sizeof(float)*m_input_size);
+        for (int i = 0; i < m_input_size; i++) {
+                m_params[i] = TRander::GetControl()->GetAFBetwen0To1();
+        }
         
 }
 
@@ -92,18 +92,14 @@ float SigmodeNode::cac(float * datas)
         return m_cac_data;
 }
 
-float SigmodeNode::bp(float delta)
+void SigmodeNode::bp(float delta, float * datas)
 {
-        m_delta = m_cac_data*(1 - m_cac_data)*delta;
-        return m_delta;
-}
-
-void SigmodeNode::AutoChangeParam(float * datas)
-{
+        delta = m_cac_data*(1 - m_cac_data)*delta;
         for (int i = 0; i < m_input_size; i++) {
-                m_params[i] += speed*m_delta*datas[i];
+                m_params[i] += speed*delta*datas[i];
         }
 }
+
 
 NormalNode::~NormalNode()
 {
@@ -125,18 +121,13 @@ float NormalNode::cac(float * datas)
         return m_cac_data;
 }
 
-float NormalNode::bp(float delta)
-{
-        m_delta = delta;
-        return m_delta;
-}
-
-void NormalNode::AutoChangeParam(float * datas)
+void NormalNode::bp(float delta, float * datas)
 {
         for (int i = 0; i < m_input_size; i++) {
-                m_params[i] += speed*m_delta*datas[i];
+                m_params[i] += speed*delta*datas[i];
         }
 }
+
 
 Node * NodeProducer::CreateANode(Node::NodeType n_type, int input_size)
 {

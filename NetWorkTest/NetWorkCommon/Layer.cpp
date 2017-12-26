@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Layer.h"
+#include "BiasLayer.h"
 
 
 Layer::Layer(int node_size, int input_size, Node::NodeType n_type)
@@ -48,6 +49,11 @@ int Layer::GetNodeSize()
         return m_nodes.size();
 }
 
+int Layer::GetBPNodeSize()
+{
+        return m_nodes.size();
+}
+
 Node * Layer::GetNode(int index)
 {
         return m_nodes[index];
@@ -60,6 +66,16 @@ float * Layer::GetLayerVector()
                 res[i] = m_nodes[i]->GetNodeData();
         }
         return res;
+}
+
+void Layer::SetNodeData(float * datas, int data_size)
+{
+        if (data_size!=m_nodes.size()){
+                return;
+        }
+        for (int i = 0; i < data_size;i++) {
+                m_nodes[i]->SetNodeData(datas[i]);
+        }
 }
 
 void Layer::Cac(float * datas)
@@ -75,4 +91,15 @@ void Layer::init(int node_size, Node::NodeType n_type)
                 Node * n = NodeProducer::CreateANode(n_type, m_input_size);
                 m_nodes.push_back(n);
         }
+}
+
+Layer * LayerProducer::CreateALayer(Layer::LayerType lt, int node_size, int input_size, Node::NodeType n_type)
+{
+        if (lt == Layer::NORMAL){
+                return new Layer(node_size, input_size, n_type);
+        }
+        else if (lt == Layer::BIAS){
+                return new BiasLayer(node_size, input_size, n_type);
+        }
+        return NULL;
 }

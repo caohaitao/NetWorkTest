@@ -21,12 +21,7 @@ Net::~Net()
 
 void Net::SetInputData(float * datas, int data_size)
 {
-        if (data_size != m_layer->GetNodeSize()){
-                return;
-        }
-        for (int i = 0; i < data_size;i++) {
-                m_layer->GetNode(i)->SetNodeData(datas[i]);
-        }
+        m_layer->SetNodeData(datas, data_size);
 }
 
 void Net::SetRealData(float * real_datas, int data_size)
@@ -55,37 +50,42 @@ void Net::bp_one()
 {
         Layer * last_layer = GetLastLayer();
         for (int i = 0; i < m_real_data_size;i++) {
-                double delt = m_real_datas[i] - last_layer->GetNode(i)->GetNodeData();
+                float delt = m_real_datas[i] - last_layer->GetNode(i)->GetNodeData();
                 last_layer->GetNode(i)->SetDelta(delt);
         }
         Layer * now_layer = last_layer;
         Layer * pre_layer = now_layer->GetPreLayer();
         while (pre_layer){
-                float * temp_delts = new float[pre_layer->GetNodeSize()];
-                memset(temp_delts, 0, sizeof(float)*pre_layer->GetNodeSize());
-                for (int i = 0; i < now_layer->GetNodeSize();i++) {
-                        Node * n = now_layer->GetNode(i);
-                        for (int j = 0; j < pre_layer->GetNodeSize();j++) {
-                                Node * pre_n = pre_layer->GetNode(j);
-                                temp_delts[j] += (n->GetParam(i)*n->GetDelta())*pre_n->GetNodeData()*(1 - pre_n->GetNodeData());
+                if (pre_layer->GetPreLayer()){
+                        int p_bp_node_size = pre_layer->GetBPNodeSize();
+                        float * temp_delts = new float[p_bp_node_size];
+                        memset(temp_delts, 0, sizeof(float)*p_bp_node_size);
+                        for (int i = 0; i < now_layer->GetNodeSize(); i++) {
+                                Node * n = now_layer->GetNode(i);
+                                for (int j = 0; j < p_bp_node_size; j++) {
+                                        Node * pre_n = pre_layer->GetNode(j);
+                                        temp_delts[j] += (n->GetParam(i)*n->GetDelta())*pre_n->GetNodeData()*(1 - pre_n->GetNodeData());
+                                }
                         }
+                        for (int i = 0; i < p_bp_node_size; i++) {
+                                pre_layer->GetNode(i)->SetDelta(temp_delts[i]);
+                        }
+                        delete[] temp_delts;
                 }
+
                 float * inputs = new float[pre_layer->GetNodeSize()];
                 for (int i = 0; i < pre_layer->GetNodeSize();i++) {
                         inputs[i] = pre_layer->GetNode(i)->GetNodeData();
                 }
                 for (int i = 0; i < now_layer->GetNodeSize(); i++) {
                         Node * n = now_layer->GetNode(i);
-                        n->bp(n->GetDelta());
-                        n->AutoChangeParam(inputs);
+                        n->bp(n->GetDelta(),inputs);
                 }
-                for (int i = 0; i < pre_layer->GetNodeSize();i++) {
-                        pre_layer->GetNode(i)->SetDelta(temp_delts[i]);
-                }
+
                 now_layer = pre_layer;
                 pre_layer = pre_layer->GetPreLayer();
                 delete[] inputs;
-                delete[] temp_delts;
+                
         }
 }
 
@@ -104,11 +104,11 @@ void Net::initLayer()
                 return;
         }
 
-        m_layer = new Layer(m_layer_construction[0].node_size, 0,Node::SIGMOD_NODE);
+        m_layer = LayerProducer::CreateALayer(m_layer_construction[0].layer_type, m_layer_construction[0].node_size, 0, Node::SIGMOD_NODE);
 
         Layer * pre_layer = m_layer;
         for (int i = 1; i < m_layer_construction.size();i++) {
-                Layer * temp_layer = new Layer(m_layer_construction[i].node_size, pre_layer->GetNodeSize(),m_layer_construction[i].layer_type);
+                Layer * temp_layer = LayerProducer::CreateALayer(m_layer_construction[i].layer_type, m_layer_construction[i].node_size, pre_layer->GetNodeSize(), m_layer_construction[i].node_type);
                 pre_layer->SetNextLayer(temp_layer);
                 temp_layer->SetPreLayer(pre_layer);
                 pre_layer = temp_layer;
