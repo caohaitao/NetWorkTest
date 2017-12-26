@@ -67,14 +67,6 @@
       <ProjName>NetWorkTest</ProjName>
     </ProjBinary>
   </Binaries>
-  <Reports>
-    <Report>
-      <Path>NetWorkTest171226.vspx</Path>
-    </Report>
-    <Report>
-      <Path>NetWorkTest171226(1).vspx</Path>
-    </Report>
-  </Reports>
   <Launches>
     <ProjBinary>
       <Path>:PB:{2B75FB39-6F3F-40D1-B0B9-A4E9BF9CA7A9}|NetWorkTest\NetWorkTest.vcxproj</Path>

@@ -19,6 +19,7 @@ public:
         void bp_one();
 
         Layer * GetLastLayer();
+        Layer * GetFirstLayer();
 protected:
         void initLayer();
         Layer * m_layer;

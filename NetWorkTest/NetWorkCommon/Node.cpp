@@ -41,6 +41,11 @@ float Node::GetParam(int index)
 }
 
 
+void Node::SetParam(int index, float p)
+{
+        m_params[index] = p;
+}
+
 void Node::SetNodeData(float d)
 {
         m_cac_data = d;
@@ -59,6 +64,11 @@ void Node::SetDelta(float f)
 float Node::GetDelta()
 {
         return m_delta;
+}
+
+int Node::GetInputSize()
+{
+        return m_input_size;
 }
 
 void Node::init()

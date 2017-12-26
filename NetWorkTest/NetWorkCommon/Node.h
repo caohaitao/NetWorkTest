@@ -14,10 +14,12 @@ public:
         virtual float cac(float * datas);
         virtual void bp(float delta, float * datas);
         float GetParam(int index);
+        void SetParam(int index, float p);
         void SetNodeData(float d);
         float GetNodeData();
         void SetDelta(float f);
         float GetDelta();
+        int GetInputSize();
 protected:
         Node(int input_size);
         void init();

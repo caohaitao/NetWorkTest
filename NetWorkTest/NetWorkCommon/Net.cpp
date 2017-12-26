@@ -98,6 +98,11 @@ Layer * Net::GetLastLayer()
         return res;
 }
 
+Layer * Net::GetFirstLayer()
+{
+        return m_layer;
+}
+
 void Net::initLayer()
 {
         if (m_layer_construction.size()<2){
