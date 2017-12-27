@@ -50,7 +50,8 @@ void Net::bp_one()
 {
         Layer * last_layer = GetLastLayer();
         for (int i = 0; i < m_real_data_size;i++) {
-                float delt = m_real_datas[i] - last_layer->GetNode(i)->GetNodeData();
+                float y = last_layer->GetNode(i)->GetNodeData();
+                float delt = /*y*(1-y)**/(m_real_datas[i] - y);
                 last_layer->GetNode(i)->SetDelta(delt);
         }
         Layer * now_layer = last_layer;
@@ -64,7 +65,7 @@ void Net::bp_one()
                                 Node * n = now_layer->GetNode(i);
                                 for (int j = 0; j < p_bp_node_size; j++) {
                                         Node * pre_n = pre_layer->GetNode(j);
-                                        temp_delts[j] += (n->GetParam(i)*n->GetDelta())*pre_n->GetNodeData()*(1 - pre_n->GetNodeData());
+                                        temp_delts[j] += (n->GetParam(i)*n->GetDelta())/**pre_n->GetNodeData()*(1 - pre_n->GetNodeData())*/;
                                 }
                         }
                         for (int i = 0; i < p_bp_node_size; i++) {
@@ -96,6 +97,11 @@ Layer * Net::GetLastLayer()
                 res = res->GetNextLayer();
         }
         return res;
+}
+
+Layer * Net::GetFirstLayer()
+{
+        return m_layer;
 }
 
 void Net::initLayer()

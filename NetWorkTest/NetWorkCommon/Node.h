@@ -14,6 +14,7 @@ public:
         virtual float cac(float * datas);
         virtual void bp(float delta, float * datas);
         float GetParam(int index);
+        void SetParam(int index, float f);
         void SetNodeData(float d);
         float GetNodeData();
         void SetDelta(float f);

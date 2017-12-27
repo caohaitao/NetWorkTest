@@ -3,6 +3,7 @@
 #include "NetWorkMath.h"
 #include <vcruntime_string.h>
 #include "TRander.h"
+#include <cmath>
 
 #define speed 0.1
 
@@ -41,6 +42,11 @@ float Node::GetParam(int index)
 }
 
 
+void Node::SetParam(int index, float f)
+{
+        m_params[index] = f;
+}
+
 void Node::SetNodeData(float d)
 {
         m_cac_data = d;
@@ -63,12 +69,20 @@ float Node::GetDelta()
 
 void Node::init()
 {
+        if (m_input_size==0){
+                return;
+        }
         m_params = new float[m_input_size];
         //memset(m_params, 0, sizeof(float)*m_input_size);
         for (int i = 0; i < m_input_size; i++) {
                 m_params[i] = TRander::GetControl()->GetAFBetwen0To1();
+                //m_params[i] = TRander::GetControl()->GetAFBetwenLowToHigh(0, 1);
         }
-        
+        //NetWorkMath::randn(m_params, m_input_size);
+        //for (int i = 0; i < m_input_size; i++) {
+        //        m_params[i] = m_params[i] / sqrt(1.5)*0.1;
+        //}
+        //m_params[2] = 0.001;
 }
 
 SigmodeNode::SigmodeNode(int input_size)
