@@ -67,6 +67,11 @@ float Node::GetDelta()
         return m_delta;
 }
 
+int Node::GetInputSize()
+{
+        return m_input_size;
+}
+
 void Node::init()
 {
         if (m_input_size==0){

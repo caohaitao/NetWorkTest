@@ -372,6 +372,114 @@ TEST(test_net, section2)
         delete net;
         delete[]d2s;
 }
+TEST(test_own_data, test_own)
+{
+        typedef float d3[3];
+        typedef float d2[2];
+        d3 * d3s = new d3[8];
+        d3s[0][0] = 0;
+        d3s[0][1] = 0;
+        d3s[0][2] = 0;
+
+        d3s[1][0] = 0;
+        d3s[1][1] = 0;
+        d3s[1][2] = 1;
+
+        d3s[2][0] = 0;
+        d3s[2][1] = 1;
+        d3s[2][2] = 0;
+
+        d3s[3][0] = 0;
+        d3s[3][1] = 1;
+        d3s[3][2] = 1;
+
+        d3s[4][0] = 1;
+        d3s[4][1] = 0;
+        d3s[4][2] = 0;
+
+        d3s[5][0] = 1;
+        d3s[5][1] = 0;
+        d3s[5][2] = 1;
+
+        d3s[6][0] = 1;
+        d3s[6][1] = 1;
+        d3s[6][2] = 0;
+
+        d3s[7][0] = 1;
+        d3s[7][1] = 1;
+        d3s[7][2] = 1;
+
+        d2 * rs = new d2[8];
+        rs[0][0] = 1;
+        rs[0][1] = 0;
+
+        rs[1][0] = 0;
+        rs[1][1] = 1;
+
+        rs[2][0] = 1;
+        rs[2][1] = 0;
+
+        rs[3][0] = 0;
+        rs[3][1] = 0;
+
+        rs[4][0] = 0;
+        rs[4][1] = 1;
+
+        rs[5][0] = 1;
+        rs[5][1] = 1;
+
+        rs[6][0] = 0;
+        rs[6][1] = 1;
+
+        rs[7][0] = 1;
+        rs[7][1] = 0;
+
+        int input_size = 3;
+
+        vector<Net::NetLayerData>  layer_datas;
+        Net::NetLayerData nd1;
+        nd1.node_type = Node::SIGMOD_NODE;
+        nd1.node_size = input_size;
+        nd1.layer_type = Layer::BIAS;
+        layer_datas.push_back(nd1);
+
+        Net::NetLayerData nd2;
+        nd2.node_type = Node::SIGMOD_NODE;
+        nd2.node_size = 3;
+        nd2.layer_type = Layer::BIAS;
+        layer_datas.push_back(nd2);
+
+        Net::NetLayerData nd3;
+        nd3.node_type = Node::SIGMOD_NODE;
+        nd3.node_size = 2;
+        nd3.layer_type = Layer::NORMAL;
+        layer_datas.push_back(nd3);
+
+
+        Net * net = new Net(layer_datas);
+        for (int k = 0; k < 100000; k++) {
+                for (int i = 0; i < 8; i++) {
+                        net->SetInputData(d3s[i], input_size);
+                        net->SetRealData(rs[i], 2);
+                        net->cac_one();
+                        net->bp_one();
+                }
+        }
+
+        Layer * last_layer = net->GetLastLayer();
+
+        float d;
+        for (int i = 0; i < 8;i++) {
+                net->SetInputData(d3s[i], input_size);
+                net->cac_one();
+
+                d = last_layer->GetNode(0)->GetNodeData();
+                d = last_layer->GetNode(1)->GetNodeData();
+        }
+
+        delete net;
+        delete[]d3s;
+}
 TEST(test_rander, tr)
 {
         int a = TRander::GetControl()->GetARandNumber(0, 10);

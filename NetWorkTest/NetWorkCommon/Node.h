@@ -19,6 +19,7 @@ public:
         float GetNodeData();
         void SetDelta(float f);
         float GetDelta();
+        int GetInputSize();
 protected:
         Node(int input_size);
         void init();
